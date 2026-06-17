@@ -14,7 +14,7 @@ Tested on IPFire 2.29 (x86_64) - Core Update 203.
 
 ## screenshot
 
-![](image/AdGuard Home.png)
+![](image/AdGuardHome.png)
 
 ## Recommended DNS Architecture
 
