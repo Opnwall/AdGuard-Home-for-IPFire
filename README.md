@@ -2,7 +2,7 @@
 
 AdGuard Home 是一个基于 DNS 的全网广告拦截和隐私保护解决方案，可为家庭和企业网络中的所有设备提供统一的 DNS 过滤服务。所有客户端（如手机、电脑、智能电视和 IoT 设备）的域名请求都会先经过 AdGuard Home，由其负责拦截广告、跟踪器、恶意域名，并提供安全、可控的 DNS 解析能力。
 
-AdGuard Home for IPFire 是专为 IPFire 防火墙打造的集成项目，提供 AdGuard Home 的一键部署与管理能力。项目包含服务管理脚本、IPFire Web UI 菜单入口、CGI 管理页面以及持久化配置目录，实现与 IPFire 系统的深度集成，让用户能够像管理原生组件一样安装、配置和维护 AdGuard Home。
+本项目是专为 IPFire 防火墙打造的集成项目，提供 AdGuard Home 的一键部署与管理能力。项目包含服务管理脚本、IPFire Web UI 菜单入口、CGI 管理页面以及持久化配置目录，实现与 IPFire 系统的深度集成，让用户能够像管理原生组件一样安装、配置和维护 AdGuard Home。
 
 ## 推荐 DNS 链路
 
