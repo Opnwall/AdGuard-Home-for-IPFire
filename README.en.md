@@ -12,9 +12,9 @@ This project integrates AdGuard Home with the IPFire firewall and provides a nat
 
 Tested on IPFire 2.29 (x86_64) - Core Update 203.
 
-## User Interface
+## screenshot
 
-![](image/AdGuardHome.en.png)
+![](image/AdGuardHome.png)
 
 ## Recommended DNS Architecture
 
