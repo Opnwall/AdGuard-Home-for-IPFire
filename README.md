@@ -1,6 +1,7 @@
 <div align="center">
     <div align="center"> 中文 | <a href="README.en.md">English</div>
 </div>
+        
 # AdGuard Home for IPFire
 
 AdGuard Home 是一个基于 DNS 的全网广告拦截和隐私保护解决方案，可为家庭和企业网络中的所有设备提供统一的 DNS 过滤服务。所有客户端（如手机、电脑、智能电视和 IoT 设备）的域名请求都会先经过 AdGuard Home，由其负责拦截广告、跟踪器、恶意域名，并提供安全、可控的 DNS 解析能力。
