@@ -7,7 +7,6 @@
 # AdGuard Home for IPFire
 
 <p>
-
   <img src="https://img.shields.io/badge/IPFire-2.29%20Core%20203-orange" alt="IPFire">
   <img src="https://img.shields.io/badge/Platform-x86__64-blue" alt="Platform">
   <img src="https://img.shields.io/badge/AdGuard%20Home-Supported-67b279" alt="AdGuard Home">
