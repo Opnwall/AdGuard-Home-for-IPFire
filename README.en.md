@@ -1,8 +1,9 @@
 <div align="center">
-  <div align="center">
-    <a href="README.md">中文</a> | English
-  </div>
+  <a href="README.md">中文</a> |
+  <a href="README.en.md">English</a>
 </div>
+
+# Tailscale for IPFire
 
 # AdGuard Home for IPFire
 
