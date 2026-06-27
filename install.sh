@@ -3,6 +3,7 @@ set -eu
 
 BASE_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ADGUARDHOME_ARCH="${ADGUARDHOME_ARCH:-}"
+BUNDLED_BINARY="$BASE_DIR/src/opt/adguardhome/AdGuardHome"
 DOWNLOAD_TMPDIR=""
 
 print_step() {
@@ -47,11 +48,11 @@ fetch_url() {
     url="$1"
     output="$2"
     if command -v curl >/dev/null 2>&1; then
-        curl -fL "$url" -o "$output"
+        curl --retry 3 --retry-delay 5 --connect-timeout 30 -fL "$url" -o "$output"
         return
     fi
     if command -v wget >/dev/null 2>&1; then
-        wget -O "$output" "$url"
+        wget --tries=3 --timeout=30 -O "$output" "$url"
         return
     fi
     die "curl or wget is required"
@@ -113,17 +114,19 @@ print_step "Checking source files"
 [ -f "$BASE_DIR/src/etc/rc.d/init.d/adguardhome" ] || die "Missing file: src/etc/rc.d/init.d/adguardhome"
 [ -f "$BASE_DIR/src/srv/web/ipfire/cgi-bin/adguardhome.cgi" ] || die "Missing file: src/srv/web/ipfire/cgi-bin/adguardhome.cgi"
 [ -f "$BASE_DIR/src/var/ipfire/adguardhome/settings" ] || die "Missing file: src/var/ipfire/adguardhome/settings"
+[ -f "$BASE_DIR/src/etc/sudoers.d/adguardhome" ] || die "Missing file: src/etc/sudoers.d/adguardhome"
 
 print_step "Stopping old service"
 /etc/rc.d/init.d/adguardhome stop >/dev/null 2>&1 || true
 
 print_step "Installing AdGuard Home binary"
-if [ -f "$BASE_DIR/src/opt/adguardhome/AdGuardHome" ]; then
+if [ -f "$BUNDLED_BINARY" ]; then
     echo "Using bundled AdGuard Home binary: src/opt/adguardhome/AdGuardHome"
     install -d -m 755 /opt/adguardhome
-    install -m 755 "$BASE_DIR/src/opt/adguardhome/AdGuardHome" /opt/adguardhome/AdGuardHome
+    install -m 755 "$BUNDLED_BINARY" /opt/adguardhome/AdGuardHome
     assert_elf /opt/adguardhome/AdGuardHome
 else
+    echo "Bundled AdGuard Home binary not found; downloading release for $ADGUARDHOME_ARCH."
     download_adguardhome "$ADGUARDHOME_ARCH"
 fi
 
@@ -139,7 +142,9 @@ if [ -f /var/ipfire/adguardhome/AdGuardHome.yaml ]; then
     cp -p /var/ipfire/adguardhome/AdGuardHome.yaml "$tmp_config"
 fi
 
-cp -R -f "$BASE_DIR/src/." /
+for dir in etc srv var; do
+    cp -R -f "$BASE_DIR/src/$dir/." "/$dir/"
+done
 
 if [ -n "$tmp_settings" ] && [ -f "$tmp_settings" ]; then
     install -m 600 "$tmp_settings" /var/ipfire/adguardhome/settings
@@ -154,8 +159,9 @@ print_step "Setting permissions"
 install -d -m 755 /var/ipfire/adguardhome /var/lib/adguardhome
 touch /var/ipfire/adguardhome/state
 touch /var/log/adguardhome.log
-chown root:root /opt/adguardhome/AdGuardHome /etc/rc.d/init.d/adguardhome /srv/web/ipfire/cgi-bin/adguardhome.cgi 2>/dev/null || true
+chown root:root /opt/adguardhome/AdGuardHome /etc/rc.d/init.d/adguardhome /etc/sudoers.d/adguardhome /srv/web/ipfire/cgi-bin/adguardhome.cgi 2>/dev/null || true
 chmod 755 /opt/adguardhome/AdGuardHome /etc/rc.d/init.d/adguardhome /srv/web/ipfire/cgi-bin/adguardhome.cgi
+chmod 440 /etc/sudoers.d/adguardhome
 chmod 644 /var/ipfire/menu.d/82-adguardhome.menu
 chmod 600 /var/ipfire/adguardhome/settings /var/ipfire/adguardhome/state /var/log/adguardhome.log
 [ ! -f /var/ipfire/adguardhome/AdGuardHome.yaml ] || chmod 600 /var/ipfire/adguardhome/AdGuardHome.yaml
@@ -167,12 +173,6 @@ ln -sf ../init.d/adguardhome /etc/rc.d/rc6.d/K02adguardhome
 
 print_step "Configuring sudo permissions"
 install -d -m 755 /etc/sudoers.d
-cat > /etc/sudoers.d/adguardhome <<'EOF'
-Cmnd_Alias ADGUARDHOME_SERVICE = /etc/rc.d/init.d/adguardhome start, /etc/rc.d/init.d/adguardhome stop, /etc/rc.d/init.d/adguardhome restart, /etc/rc.d/init.d/adguardhome status, /etc/rc.d/init.d/adguardhome version
-nobody ALL=(root) NOPASSWD: ADGUARDHOME_SERVICE
-nobody ALL=(root) NOPASSWD: /usr/bin/install -m 600 /tmp/adguardhome-settings.* /var/ipfire/adguardhome/settings
-EOF
-chmod 440 /etc/sudoers.d/adguardhome
 visudo -cf /etc/sudoers.d/adguardhome >/dev/null || die "sudoers validation failed"
 
 print_step "Reloading Web service"
